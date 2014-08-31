@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+       android:id="@+id/card_main"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_marginTop="10dp"
+       android:background="@drawable/combined_card_background"
+       android:descendantFocusability="afterDescendants"
+       android:paddingBottom="15dp"
+       android:paddingLeft="15dp"
+       android:paddingRight="15dp"
+       android:paddingTop="15dp" >
+	  
+       <TextView
+           android:id="@+id/card_title"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="Timer"
+           android:textAppearance="?android:attr/textAppearanceMedium" />
+
+       <TextView
+           android:id="@+id/card_description"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_below="@id/card_title"
+           android:maxWidth="250dp"
+           android:text="Remove lock "
+           android:textAppearance="?android:attr/textAppearanceSmall"
+           android:visibility="visible" />
+ 
+       <ImageView
+           android:id="@+id/card_image"
+           android:layout_width="50dp"
+           android:layout_height="50dp"
+           android:layout_centerVertical="true"
+           android:layout_marginLeft="24dp"
+           android:layout_alignParentRight="true"
+           android:gravity="right"
+           android:src="@drawable/ic_timer" />
+
+       
+
+
+   </RelativeLayout>
