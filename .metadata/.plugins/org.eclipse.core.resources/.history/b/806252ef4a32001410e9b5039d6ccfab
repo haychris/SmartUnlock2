@@ -304,11 +304,11 @@ public class MainActivity extends Activity {
 													if (enabled) {
 														((ImageView) v).setImageResource(R.drawable.ic_timer_inactive);
 														enabled = false;
-														disableCondition(conName);
+														activateCondition(conName);
 													} else {
 														((ImageView) v).setImageResource(R.drawable.ic_timer_active);
 														enabled = true;
-														activateCondition(conName);
+														disableCondition(conName);
 													}
 												}
 											});
@@ -578,7 +578,7 @@ public class MainActivity extends Activity {
 			ed.putStringSet("all_sets_active", activeSets);
 			ed.putStringSet("all_sets_inactive", inactiveSets);
 			Log.e("enabling " + name, toString());
-			ed.commit(); 
+			ed.commit();
     	}
     	public void disable(Context context){
     		isActive = false;

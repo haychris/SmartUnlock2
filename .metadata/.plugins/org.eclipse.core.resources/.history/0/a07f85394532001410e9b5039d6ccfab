@@ -38,7 +38,6 @@ public class DeviceAdmin extends DeviceAdminReceiver {
 		SharedPreferences prefs = context.getSharedPreferences("hay.chris.smartunlock.condition_storage", 0);
 		Set<String> activeTimers = prefs.getStringSet("all_timers_active", new HashSet<String>());
 		int[] timesInMillis = new int[activeTimers.size()];
-		Log.e("test", "" + activeTimers.size());
 		int count = 0;
 		// go through every active timer and check if it responds to device login success
 		// if so, check if all other conditions in its set are active
@@ -68,13 +67,11 @@ public class DeviceAdmin extends DeviceAdminReceiver {
 				}
 			}
 		}
-		if (count > 0) {
-			int minTime = timesInMillis[0];
-			for (int i = 1; i < count; i++){
-				if (timesInMillis[i] < minTime) minTime = timesInMillis[i];
-			}
-			resetPasswordAfterTime(context, minTime);
+		int minTime = timesInMillis[0];
+		for (int i = 1; i < count; i++){
+			if (timesInMillis[i] < minTime) minTime = timesInMillis[i];
 		}
+		resetPasswordAfterTime(context, minTime);
 	}
 	@SuppressLint("NewApi")
 	private void resetPasswordAfterTime(Context context, int timeInMillis) {
@@ -92,8 +89,5 @@ public class DeviceAdmin extends DeviceAdminReceiver {
 	@Override
 	public void onPasswordChanged(Context context, Intent intent) {
 		
-	}
-	public void onReceive(Context context, Intent intent) {
-		onPasswordSucceeded(context, intent);
 	}
 }

@@ -304,11 +304,11 @@ public class MainActivity extends Activity {
 													if (enabled) {
 														((ImageView) v).setImageResource(R.drawable.ic_timer_inactive);
 														enabled = false;
-														disableCondition(conName);
+														activateCondition(conName);
 													} else {
 														((ImageView) v).setImageResource(R.drawable.ic_timer_active);
 														enabled = true;
-														activateCondition(conName);
+														disableCondition(conName);
 													}
 												}
 											});
@@ -571,14 +571,13 @@ public class MainActivity extends Activity {
 			activeConditions.add(name);
 			inactiveSets.remove(setName);
 			activeSets.add(setName);
-			ed.putString(name, toString());
 			ed.putStringSet("all_timers_active", activeTimers);
 			ed.putStringSet(setName + "_active", activeConditions);
 			ed.putStringSet(setName + "_inactive", inactiveConditions);
 			ed.putStringSet("all_sets_active", activeSets);
 			ed.putStringSet("all_sets_inactive", inactiveSets);
-			Log.e("enabling " + name, toString());
-			ed.commit(); 
+			ed.putString(name, toString());
+			ed.commit();
     	}
     	public void disable(Context context){
     		isActive = false;
@@ -601,7 +600,6 @@ public class MainActivity extends Activity {
 				inactiveSets.add(setName);
 				activeSets.remove(setName);
 			}
-			Log.e("disabling " + name, toString());
 			ed.putString(name, toString());
 			ed.putStringSet("all_timers_active", activeTimers);
 			ed.putStringSet(setName + "_active", activeConditions);
