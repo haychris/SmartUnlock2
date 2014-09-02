@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;SmartUnlock/res/layout/timer_set.xml&apos; to &apos;default_set.xml&apos;" description="Rename resource &apos;timer_set.xml&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="res/layout/timer_set.xml" name="default_set.xml" stamp="1409539394483" updateReferences="true"/>
+</session>

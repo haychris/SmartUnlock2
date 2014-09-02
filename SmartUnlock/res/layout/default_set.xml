@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/set_main"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:layout_marginTop="10dp"
+	android:background="@drawable/combined_card_background"
+	android:descendantFocusability="afterDescendants"
+	android:paddingBottom="15dp"
+	android:paddingLeft="15dp"
+	android:paddingRight="15dp"
+	android:paddingTop="15dp">
+	<TextView
+           android:id="@+id/set_title"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="Home"
+           android:textAppearance="?android:attr/textAppearanceLarge" />
+
+       <TextView
+           android:id="@+id/set_description"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_below="@id/set_title"
+           android:maxWidth="250dp"
+           android:text="Remove lock "
+           android:textAppearance="?android:attr/textAppearanceSmall"
+           android:visibility="visible" />
+ 
+       <Switch
+           android:id="@+id/set_switch"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_marginLeft="24dp"
+           android:layout_alignParentRight="true" />
+       <LinearLayout
+	       android:id="@+id/set_timer_condition"
+	       android:layout_width="match_parent"
+	       android:layout_height="wrap_content"
+	       android:layout_below="@id/set_description"
+	       android:orientation="vertical"
+	       android:layout_marginTop="10dp">
+
+	       
+   		</LinearLayout>
+   <View
+       		android:id="@+id/divider"
+    		android:layout_width="fill_parent"
+    		android:layout_marginTop="10dp"
+    		android:layout_height="3dp"
+    		android:layout_below="@id/set_timer_condition"
+   		 	android:background="@android:color/darker_gray"
+   		 	android:visibility="gone"/>
+   <LinearLayout
+       android:id="@+id/other_conditions"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_below="@id/divider"
+       android:orientation="vertical">
+      
+       
+   </LinearLayout>
+    
+
+</RelativeLayout>

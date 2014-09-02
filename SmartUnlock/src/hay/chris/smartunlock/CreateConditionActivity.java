@@ -134,6 +134,7 @@ public class CreateConditionActivity extends Activity {
 				timer = new MainActivity.TimerCondition(name, setName, 3);
 				break;
 		}
+		timer.isActive = true;
 		Log.e("test", "attempt save");  
 		SharedPreferences.Editor edit = prefs.edit();
 		Set<String> activeSets = new HashSet<String>(prefs.getStringSet("all_sets_active", new HashSet<String>()));
@@ -144,7 +145,7 @@ public class CreateConditionActivity extends Activity {
 		activeTimers.add(name);
 		edit.putString(name, timer.toString());
 		edit.putStringSet("all_sets_active", activeSets);
-		edit.putStringSet(setName, activeConditionsForSet);
+		edit.putStringSet(setName + "_active", activeConditionsForSet);
 		edit.putStringSet("all_timers_active", activeTimers);
 		edit.putInt("total_condition_storage_size", currentConditionSize + 1);
 		edit.putInt("total_set_storage_size", currentSetSize + 1);

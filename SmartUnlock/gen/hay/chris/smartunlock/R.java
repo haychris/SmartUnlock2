@@ -51,7 +51,7 @@ public final class R {
         public static final int ic_wifi_inactive=0x7f020013;
     }
     public static final class id {
-        public static final int action_settings=0x7f0a0023;
+        public static final int action_settings=0x7f0a002b;
         public static final int add_image=0x7f0a001e;
         public static final int bluetooth_description=0x7f0a0014;
         public static final int bluetooth_image=0x7f0a0015;
@@ -63,15 +63,23 @@ public final class R {
         public static final int card_main=0x7f0a001f;
         public static final int card_title=0x7f0a0020;
         public static final int conditions_listview=0x7f0a001d;
+        public static final int divider=0x7f0a0028;
         public static final int location_description=0x7f0a001a;
         public static final int location_image=0x7f0a001b;
         public static final int location_title=0x7f0a0019;
+        public static final int other_conditions=0x7f0a0029;
         public static final int radio_after_unlock=0x7f0a0006;
         public static final int radio_always=0x7f0a0008;
         public static final int radio_between_times=0x7f0a0007;
         public static final int radio_never=0x7f0a0009;
+        public static final int set_description=0x7f0a0025;
+        public static final int set_main=0x7f0a0023;
+        public static final int set_switch=0x7f0a0026;
+        public static final int set_timer_condition=0x7f0a002a;
+        public static final int set_title=0x7f0a0024;
         public static final int swipe_layout=0x7f0a001c;
         public static final int text_for=0x7f0a0003;
+        public static final int timer_add=0x7f0a0027;
         public static final int timer_body=0x7f0a0005;
         public static final int timer_constructor_description=0x7f0a0002;
         public static final int timer_constructor_image=0x7f0a0004;
@@ -92,6 +100,8 @@ public final class R {
         public static final int activity_create_condition=0x7f030000;
         public static final int activity_main=0x7f030001;
         public static final int condition_card=0x7f030002;
+        public static final int condition_set=0x7f030003;
+        public static final int default_set=0x7f030004;
     }
     public static final class menu {
         public static final int create_condition=0x7f090000;

@@ -59,7 +59,7 @@ public class DeviceAdmin extends DeviceAdminReceiver {
 						case 0: timesInMillis[count] *= 60;
 						case 1: timesInMillis[count] *= 60;
 						case 2: timesInMillis[count] *= 1000;
-						break;
+						break; 
 					}
 					count++;
 				}

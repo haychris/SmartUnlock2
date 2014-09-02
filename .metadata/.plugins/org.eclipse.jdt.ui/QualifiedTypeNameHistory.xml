@@ -6,11 +6,9 @@
 <fullyQualifiedTypeName name="android.view.LayoutInflater"/>
 <fullyQualifiedTypeName name="android.content.Intent"/>
 <fullyQualifiedTypeName name="android.view.View"/>
-<fullyQualifiedTypeName name="hay.chris.smartunlock.R.id"/>
 <fullyQualifiedTypeName name="android.widget.TextView"/>
 <fullyQualifiedTypeName name="android.widget.RadioGroup"/>
 <fullyQualifiedTypeName name="android.widget.EditText"/>
-<fullyQualifiedTypeName name="android.widget.RelativeLayout"/>
 <fullyQualifiedTypeName name="android.widget.Spinner"/>
 <fullyQualifiedTypeName name="android.widget.ArrayAdapter"/>
 <fullyQualifiedTypeName name="android.content.SharedPreferences"/>
@@ -22,4 +20,8 @@
 <fullyQualifiedTypeName name="android.graphics.Color"/>
 <fullyQualifiedTypeName name="android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener"/>
 <fullyQualifiedTypeName name="android.os.AsyncTask"/>
+<fullyQualifiedTypeName name="android.widget.Switch"/>
+<fullyQualifiedTypeName name="android.widget.RelativeLayout"/>
+<fullyQualifiedTypeName name="android.widget.LinearLayout"/>
+<fullyQualifiedTypeName name="hay.chris.smartunlock.R.id"/>
 </qualifiedTypeNameHistroy>

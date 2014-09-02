@@ -1,5 +1,5 @@
 com.android.ide.eclipse.adt.fixLegacyEditors=1
 com.android.ide.eclipse.adt.sdk=/home/chris/Projects/Android/adt-bundle-linux-x86_64-20140702/sdk
 com.android.ide.eclipse.adt.xmlEditor=true
-design.structure.flyout.width=268
+design.structure.flyout.width=266
 eclipse.preferences.version=1
