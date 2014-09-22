@@ -1,34 +1,85 @@
 package hay.chris.smartunlock;
 
-import java.util.HashSet;
+import java.util.HashSet; 
 import java.util.Set;
 
 import android.app.Activity;    
+import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class CreateConditionActivity extends Activity {
+public class CreateConditionActivity extends Activity implements MyDialogFragmentListener {
 
 	private boolean timerExpanded;
 	private boolean bluetoothExpanded;
 	private boolean wifiExpanded;
 	private boolean locationExpanded;
-	
+	private ArrayAdapter<String> mArrayAdapter;
+	private BluetoothAdapter mBluetoothAdapter;
+	private String bluetoothNameToBe = "Default Device";
+	// Create a BroadcastReceiver for ACTION_FOUND
+	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+	    public void onReceive(Context context, Intent intent) {
+	        String action = intent.getAction();
+	        // When discovery finds a device
+	        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+	            // Get the BluetoothDevice object from the Intent
+	            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+	            // Add the name and address to an array adapter to show in a ListView
+	            mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+	        }
+	    }
+	};
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		mArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
+//		if (mBluetoothAdapter != null)
+		Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+		// If there are paired devices
+		if (pairedDevices.size() > 0) {
+		    // Loop through paired devices
+		    for (BluetoothDevice device : pairedDevices) {
+		        // Add the name and address to an array adapter to show in a ListView
+		        mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+		    }
+		}
+		mBluetoothAdapter.startDiscovery();
 		setContentView(R.layout.activity_create_condition);
+	}
+	protected void onResume(){
+		super.onResume();
+		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+		registerReceiver(mReceiver, filter); 
+	}
+	protected void onPause(){
+		super.onPause();
+		unregisterReceiver(mReceiver);
 	}
 
 	@Override
@@ -101,13 +152,11 @@ public class CreateConditionActivity extends Activity {
 		dismissAllTimerViews();
 		RelativeLayout createOrCancel = (RelativeLayout) findViewById(R.id.timer_unlock_body);
 		createOrCancel.setVisibility(View.VISIBLE);
-		//TODO add saving and creating condition
 	}
 	public void onRadioTimerNever(View view) {
 		dismissAllTimerViews();
 		RelativeLayout createOrCancel = (RelativeLayout) findViewById(R.id.timer_unlock_body);
 		createOrCancel.setVisibility(View.VISIBLE);
-		//TODO add saving data and creating condition
 	}
 	public void onCreateTimer(View view) {
 		int radioId = ((RadioGroup)findViewById(R.id.timer_body)).getCheckedRadioButtonId();
@@ -125,7 +174,7 @@ public class CreateConditionActivity extends Activity {
 				int timeType = ((Spinner) findViewById(R.id.timer_spinner)).getSelectedItemPosition();
 				timer.setTime(time, timeType);
 				break; 
-			case R.id.radio_between_times:
+			case R.id.radio_between_times: //TODO make work
 				break;
 			case R.id.radio_always:
 				timer = new MainActivity.TimerCondition(name, setName, 2);
@@ -163,4 +212,202 @@ public class CreateConditionActivity extends Activity {
 		createOrCancel.setVisibility(View.GONE);
 	}
 	
+	
+	
+	
+	
+	
+	
+	//BLUETOOTH
+	
+	public void expandBluetooth(View view) {
+		if (bluetoothExpanded) return;
+		TextView description = (TextView) findViewById(R.id.bluetooth_constructor_description);
+		description.setText("Remove lock when ");
+		RadioGroup radios = (RadioGroup) findViewById(R.id.bluetooth_body);
+		radios.setVisibility(View.VISIBLE);
+		LinearLayout deviceList = (LinearLayout) findViewById(R.id.bluetooth_devices);
+		deviceList.setVisibility(View.VISIBLE);
+		EditText editMac = (EditText) findViewById(R.id.bluetooth_editor);
+		editMac.setVisibility(View.VISIBLE);
+		ImageView search = (ImageView) findViewById(R.id.bluetooth_search);
+		search.setVisibility(View.VISIBLE);
+        ImageView addDevice = (ImageView) findViewById(R.id.bluetooth_add_device);
+        addDevice.setVisibility(View.VISIBLE);
+	}
+	private void makeVisible(View[] views) {
+		for (View v : views)
+			v.setVisibility(View.VISIBLE);
+	}
+	private View[] getBluetoothViews(){
+		View[] views = {findViewById(R.id.text_when),
+		                findViewById(R.id.bluetooth_unlock_body),
+		                findViewById(R.id.button_cancel_bluetooth),
+		                findViewById(R.id.button_create_bluetooth),
+		                findViewById(R.id.bluetooth_devices),
+		                findViewById(R.id.bluetooth_editor),
+		                findViewById(R.id.bluetooth_search),
+		                findViewById(R.id.bluetooth_add_device),
+		                findViewById(R.id.bluetooth_body)};
+		return views;
+	}
+	private void dismissAllBluetoothViews() {
+		View[] views = getBluetoothViews();    
+		for (View v: views) {
+			v.setVisibility(View.GONE);
+		}
+	} 
+	private void addCreator(){
+		findViewById(R.id.bluetooth_unlock_body).setVisibility(View.VISIBLE);
+		findViewById(R.id.button_cancel_bluetooth).setVisibility(View.VISIBLE);
+		
+
+		if (((ViewGroup) findViewById(R.id.bluetooth_devices)).getChildCount() > 0 &&
+		    ((RadioGroup) findViewById(R.id.bluetooth_body)).getCheckedRadioButtonId() != -1) 
+		{
+			findViewById(R.id.button_create_bluetooth).setVisibility(View.VISIBLE);
+		}
+	}
+	public void onRadioBluetoothConnected(View view) {
+		addCreator();
+	}
+	public void onRadioBluetoothNotConnected(View view) {
+		addCreator();
+	}
+	public void onRadioBluetoothScannable(View view) {
+		addCreator();
+	}
+	public void onBluetoothSearch(View view){
+		AlertDialog.Builder builderSingle = new AlertDialog.Builder(
+				CreateConditionActivity.this);
+        builderSingle.setTitle("Select Bluetooth Device");
+        final ArrayAdapter<String> arrayAdapter = mArrayAdapter;
+        builderSingle.setNegativeButton("cancel",
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int position) {
+                        dialog.dismiss();
+                    } 
+                });
+
+        builderSingle.setAdapter(arrayAdapter,
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int position) {
+                    	MyDialogFragmentListener activity = (MyDialogFragmentListener) CreateConditionActivity.this.getThisActivity();
+                        activity.onReturnValue(arrayAdapter.getItem(position));
+                        dialog.dismiss(); 
+                    }
+                });
+        builderSingle.show();
+	}
+	public Activity getThisActivity(){
+		return this;
+	}
+	public void onBluetoothAddDevice(View view){
+		EditText macField = (EditText) findViewById(R.id.bluetooth_editor);
+		String macName = macField.getText().toString();
+		Boolean validMac = (BluetoothAdapter.checkBluetoothAddress(macName) && !macName.contains(";"));
+		if (!validMac){
+			//TODO
+		} else {
+			addBluetoothDevice(bluetoothNameToBe, macName);
+			bluetoothNameToBe = "Default Device";
+			macField.setText("");
+		}
+	}
+	public void onCreateBluetooth(View view){
+		int radioId = ((RadioGroup)findViewById(R.id.bluetooth_body)).getCheckedRadioButtonId();
+		SharedPreferences prefs = this.getSharedPreferences("hay.chris.smartunlock.condition_storage", 0);
+	    int currentConditionSize = prefs.getInt("total_condition_storage_size", 0);
+	    int currentSetSize = prefs.getInt("total_set_storage_size", 0);
+		String name = "condition" + currentConditionSize;
+		String setName = "set" + currentSetSize;
+		
+		ViewGroup devices = (ViewGroup) findViewById(R.id.bluetooth_devices);
+
+		MainActivity.BluetoothCondition bluetooth = null;
+		switch (radioId) {
+			case R.id.radio_when_connected:
+				bluetooth = new MainActivity.BluetoothCondition(name, setName, 0);
+				break; 
+			case R.id.radio_when_not_connected:
+				bluetooth = new MainActivity.BluetoothCondition(name, setName, 1);
+				break;
+			case R.id.radio_when_scannable:
+				bluetooth = new MainActivity.BluetoothCondition(name, setName, 2);
+				break;
+		}
+		for (int i = 0; i < devices.getChildCount(); i++){
+			String data = ((TextView) ((ViewGroup) devices.getChildAt(i)).getChildAt(0)).getText().toString();
+			Log.e("add bluetooth device", data);
+			bluetooth.addDevice(data);
+		}
+		bluetooth.isActive = true;
+		Log.e("test", "attempt save");  
+		SharedPreferences.Editor edit = prefs.edit();
+		Set<String> activeSets = new HashSet<String>(prefs.getStringSet("all_sets_active", new HashSet<String>()));
+		Set<String> activeConditionsForSet = new HashSet<String>();
+		Set<String> activeBluetooth = new HashSet<String>(prefs.getStringSet("all_bluetooth_active", new HashSet<String>()));
+		activeSets.add(setName);
+		activeConditionsForSet.add(name);
+		activeBluetooth.add(name);
+		edit.putString(name, bluetooth.toString());
+		edit.putStringSet("all_sets_active", activeSets);
+		edit.putStringSet(setName + "_active", activeConditionsForSet);
+		edit.putStringSet("all_bluetooth_active", activeBluetooth);
+		edit.putInt("total_condition_storage_size", currentConditionSize + 1);
+		edit.putInt("total_set_storage_size", currentSetSize + 1);
+		edit.commit();
+		onCancelBluetooth(view);
+	}
+	public void onCancelBluetooth(View view) {
+		dismissAllBluetoothViews();
+		TextView description = (TextView) findViewById(R.id.bluetooth_constructor_description);
+		description.setText("Remove lock when connected via bluetooth");
+		RadioGroup radios = (RadioGroup) findViewById(R.id.bluetooth_body);
+		radios.clearCheck();
+		ViewGroup devices = (ViewGroup) findViewById(R.id.bluetooth_devices);
+		while (devices.getChildCount() > 0) 
+			devices.removeViewAt(0);
+		
+	}
+	private void addBluetoothDevice(String name, String mac){
+		ViewGroup layout = (ViewGroup) findViewById(R.id.bluetooth_devices);
+		LinearLayout deviceContainer = new LinearLayout(this);
+		deviceContainer.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		deviceContainer.setOrientation(LinearLayout.HORIZONTAL);
+		
+		TextView device = new TextView(this);
+		device.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		device.setText(name + "\n" + mac);
+		deviceContainer.addView(device);
+		
+		ImageView deleteDevice = new ImageView(this);
+//		MarginLayoutParams params = (MarginLayoutParams) deleteDevice.getLayoutParams();
+//		params.leftMargin = 100;
+//		deleteDevice.setLayoutParams(params);
+		deleteDevice.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete));
+		deleteDevice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            	ViewGroup container = ((ViewGroup) v.getParent());
+            	((ViewGroup)container.getParent()).removeView(container);
+            	addCreator();
+            }
+        });
+		deviceContainer.addView(deleteDevice);
+		
+		layout.addView(deviceContainer);
+		addCreator();
+	}
+	@Override
+	public void onReturnValue(String name) {
+		String[] deviceStrings = name.split("\n");
+		EditText macField = (EditText) findViewById(R.id.bluetooth_editor);
+		macField.setText(deviceStrings[1]);
+		bluetoothNameToBe = deviceStrings[0];
+	}
 }

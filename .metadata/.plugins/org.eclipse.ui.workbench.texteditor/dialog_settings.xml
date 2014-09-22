@@ -13,14 +13,16 @@
 		<item value="false" key="isRegEx"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="&quot;test&quot;" key="selection"/>
+		<item value="" key="selection"/>
 		<list key="findhistory">
+			<item value="Hardik"/>
+			<item value="state"/>
+			<item value="removeAllSets"/>
 			<item value="&quot;test&quot;"/>
 			<item value="&quot;&quot;"/>
 			<item value="remove"/>
 			<item value="removeAll"/>
 			<item value="prefs"/>
-			<item value="launch"/>
 		</list>
 		<list key="replacehistory">
 		</list>

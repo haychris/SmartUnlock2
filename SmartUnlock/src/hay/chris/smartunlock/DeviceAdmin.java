@@ -14,6 +14,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 
@@ -46,7 +48,7 @@ public class DeviceAdmin extends DeviceAdminReceiver {
 		for (String conditionName : activeTimers) {
 			String data = prefs.getString(conditionName, "");
 			TimerCondition timer = new TimerCondition(conditionName, data);
-			if (timer.radio == 0) {
+			if (timer.radio == 0 || timer.radio == 2 || timer.radio == 3) {
 				// valid timer if radio = 0 and all other conditions are valid
 				// relies on format of data where splitData[1] represents isValid boolean
 				boolean validTimer = true;
@@ -57,12 +59,22 @@ public class DeviceAdmin extends DeviceAdminReceiver {
 					if (Integer.parseInt(splitData[1]) == 0) validTimer = false;
 				}
 				if (validTimer) {
-					timesInMillis[count] = timer.time;
-					switch(timer.timeType){
-						case 0: timesInMillis[count] *= 60;
-						case 1: timesInMillis[count] *= 60;
-						case 2: timesInMillis[count] *= 1000;
-						break; 
+					switch(timer.radio){
+						case 0:
+							timesInMillis[count] = timer.time;
+							switch(timer.timeType){
+								case 0: timesInMillis[count] *= 60;
+								case 1: timesInMillis[count] *= 60;
+								case 2: timesInMillis[count] *= 1000;
+								break; 
+							}
+							break;
+							// sets to always unlock; priority over locking in future
+						case 2: timesInMillis[count] = -1;
+						break;
+							// sets to never unlock; priority over locking in future and always unlocking
+						case 3: timesInMillis[count] = -2;
+						break;
 					}
 					count++;
 				}
@@ -73,7 +85,15 @@ public class DeviceAdmin extends DeviceAdminReceiver {
 			for (int i = 1; i < count; i++){
 				if (timesInMillis[i] < minTime) minTime = timesInMillis[i];
 			}
-			resetPasswordAfterTime(context, minTime);
+			if (minTime > 0)
+				resetPasswordAfterTime(context, minTime);
+			if (minTime == -1) 
+				getManager(context).resetPassword("", 0);
+			if (minTime == -2) {
+				Intent lockIntent = new Intent(context, LockUnReceiver.class);
+				intent.putExtra("toLock", true);
+				context.sendBroadcast(lockIntent);
+			}
 		}
 	}
 	@SuppressLint("NewApi")

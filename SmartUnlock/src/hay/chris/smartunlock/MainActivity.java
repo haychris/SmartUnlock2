@@ -38,7 +38,7 @@ public class MainActivity extends Activity {
     private SwipeRefreshLayout mSwipeRefreshLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); 
        
         //inflate list view
         LayoutInflater mInflater = getLayoutInflater();
@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
 		
 		SharedPreferences prefs = this.getSharedPreferences("hay.chris.smartunlock.condition_storage", 0);
 		int setStorageSize = prefs.getInt("total_set_storage_size", 0);
-		if (mAdapter == null) {
+		if (mAdapter == null) { 
 			ArrayList<ConditionSet> data = new ArrayList<ConditionSet>();
 			int nullCount = 0;
 			for (int i = 0; i < setStorageSize + nullCount; i++) {
@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
     }
 
 
-    @Override
+    @Override 
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
@@ -100,6 +100,8 @@ public class MainActivity extends Activity {
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
+        } else if (id == R.id.action_delete_all){
+        	removeAllSets();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -298,7 +300,7 @@ public class MainActivity extends Activity {
 					final boolean initState =  timer.isActive;
 					if (timer.isActive) image.setImageResource(R.drawable.ic_timer_active); 
 					else image.setImageResource(R.drawable.ic_timer_inactive); 
-					image.setOnClickListener(new OnClickListener() {
+					image.setOnClickListener(new OnClickListener() {  
 												private boolean enabled = initState;
 												public void onClick(View v) {
 													if (enabled) {
@@ -336,16 +338,50 @@ public class MainActivity extends Activity {
 					timerHolder.addView(conditionView);
 				break;
 				case '1':
-					//TODO implement these other cases
-					condition = new ConditionObject(conditionName);
-					conditionViewHolder = (LinearLayout) getLayoutInflater().inflate(R.layout.condition_card,
-										  			(ViewGroup)findViewById(R.id.set_timer_condition), true);
-					conditionView = conditionViewHolder.getChildAt(0);
+					BluetoothCondition bluetooth = new BluetoothCondition(conditionName, data);
+					conditionView = getLayoutInflater().inflate(R.layout.condition_card,
+										  			conditionHolder, false);
 					conditionTitle = (TextView) ((ViewGroup) conditionView).getChildAt(0);
 					conditionDescription = (TextView) ((ViewGroup) conditionView).getChildAt(1);
 					image = (ImageView) ((ViewGroup) conditionView).getChildAt(2);
-					image.setImageResource(R.drawable.ic_bluetooth_active);
+					final boolean initStateB =  bluetooth.isActive;
+					if (bluetooth.isActive) image.setImageResource(R.drawable.ic_bluetooth_active); 
+					else image.setImageResource(R.drawable.ic_bluetooth_inactive); 
+					image.setOnClickListener(new OnClickListener() {  
+												private boolean enabled = initStateB;
+												public void onClick(View v) {
+													if (enabled) {
+														((ImageView) v).setImageResource(R.drawable.ic_bluetooth_inactive);
+														enabled = false;
+														disableCondition(conName);
+													} else {
+														((ImageView) v).setImageResource(R.drawable.ic_bluetooth_active);
+														enabled = true;
+														activateCondition(conName);
+													}
+												}
+											});
 					conditionTitle.setText(R.string.title_bluetooth);
+					StringBuilder descript = new StringBuilder("Disable lock when ");
+					switch(bluetooth.radio) {
+						case 1: descript.append("not ");
+						case 0: descript.append("connected to: ");
+						break;
+						case 2: descript.append("near: ");
+						break;
+					}
+					Log.e("bluetooth", "about to add devices to description");
+					if (bluetooth.devices.size() > 0) {
+						Log.e("bluetooth", "adding devices to description");
+						for (String nameMac : bluetooth.devices){
+							String[] names = nameMac.split("\n");
+							descript.append(names[0] + ", ");
+						}
+						//removes trailing comma
+						descript.deleteCharAt(descript.length() - 2);
+					}
+					conditionDescription.setText(descript);
+					conditionHolder.addView(conditionView);
 					break;
 				case '2':
 					//TODO implement these other cases
@@ -383,15 +419,11 @@ public class MainActivity extends Activity {
 				case '0':
 					TimerCondition timer = new TimerCondition(name, data);
 					timer.disable(mContext);
-					switch(timer.radio){
-						case 0:
-							
-							break;
-						case 1: break;
-						case 2: break;
-						case 3: break;
-					}
-				case '1': break;
+					break;
+				case '1': 
+					BluetoothCondition bluetooth = new BluetoothCondition(name, data);
+					bluetooth.disable(mContext);
+					break;
 				case '2': break;
 				case '3': break;
 			}
@@ -405,15 +437,11 @@ public class MainActivity extends Activity {
 				case '0':
 					TimerCondition timer = new TimerCondition(name, data);
 					timer.activate(mContext);
-					switch(timer.radio){
-						case 0:
-							
-							break;
-						case 1: break;
-						case 2: break;
-						case 3: break;
-					}
-				case '1': break;
+					break;
+				case '1': 
+					BluetoothCondition bluetooth = new BluetoothCondition(name, data);
+					bluetooth.activate(mContext);
+					break;
 				case '2': break;
 				case '3': break;
 			}
@@ -489,6 +517,80 @@ public class MainActivity extends Activity {
     	public void setValid(boolean validity) {
     		this.isValid = validity;
     	}
+    	public void activate(Context context){
+    		String typeName;
+    		switch(type){
+	    		case 0: typeName = "timers"; break;
+	    		case 1: typeName = "bluetooth"; break;
+	    		case 2: typeName = "wifi"; break;
+	    		case 3: typeName = "locations"; break;
+	    		default: typeName = "";
+    		}
+    		isActive = true;
+    		SharedPreferences prefs = context.getSharedPreferences("hay.chris.smartunlock.condition_storage", 0);
+			SharedPreferences.Editor ed = prefs.edit();
+    		Set<String> activeConditions = new HashSet<String>(
+					prefs.getStringSet(setName + "_active", new HashSet<String>()));
+			Set<String> inactiveConditions = new HashSet<String>(
+					prefs.getStringSet(setName + "_inactive", new HashSet<String>()));
+			Set<String> activeSets = new HashSet<String>(
+					prefs.getStringSet("all_sets_active", new HashSet<String>()));
+			Set<String> inactiveSets = new HashSet<String>(
+					prefs.getStringSet("all_sets_inactive", new HashSet<String>()));
+			Set<String> activeTimers = new HashSet<String>(
+					prefs.getStringSet("all_" + typeName + "_active", new HashSet<String>()));
+			activeTimers.add(name);
+			inactiveConditions.remove(name);
+			activeConditions.add(name);
+			inactiveSets.remove(setName);
+			activeSets.add(setName);
+			ed.putString(name, toString());
+			ed.putStringSet("all_" + typeName + "_active", activeTimers);
+			ed.putStringSet(setName + "_active", activeConditions);
+			ed.putStringSet(setName + "_inactive", inactiveConditions);
+			ed.putStringSet("all_sets_active", activeSets);
+			ed.putStringSet("all_sets_inactive", inactiveSets);
+			Log.e("enabling " + name, toString());
+			ed.commit(); 
+    	}
+    	public void disable(Context context){
+    		String typeName;
+    		switch(type){
+	    		case 0: typeName = "timers"; break;
+	    		case 1: typeName = "bluetooth"; break;
+	    		case 2: typeName = "wifi"; break;
+	    		case 3: typeName = "locations"; break;
+	    		default: typeName = "";
+    		}
+    		isActive = false;
+    		SharedPreferences prefs = context.getSharedPreferences("hay.chris.smartunlock.condition_storage", 0);
+			SharedPreferences.Editor ed = prefs.edit();
+    		Set<String> activeConditions = new HashSet<String>(
+					prefs.getStringSet(setName + "_active", new HashSet<String>()));
+			Set<String> inactiveConditions = new HashSet<String>(
+					prefs.getStringSet(setName + "_inactive", new HashSet<String>()));
+			Set<String> activeSets = new HashSet<String>(
+					prefs.getStringSet("all_sets_active", new HashSet<String>()));
+			Set<String> inactiveSets = new HashSet<String>(
+					prefs.getStringSet("all_sets_inactive", new HashSet<String>()));
+			Set<String> activeTimers = new HashSet<String>(
+					prefs.getStringSet("all_" + typeName + "_active", new HashSet<String>()));
+			activeTimers.remove(name);
+			inactiveConditions.add(name);
+			activeConditions.remove(name);
+			if (activeConditions.isEmpty()) {
+				inactiveSets.add(setName);
+				activeSets.remove(setName);
+			}
+			Log.e("disabling " + name, toString());
+			ed.putString(name, toString());
+			ed.putStringSet("all_" + typeName + "_active", activeTimers);
+			ed.putStringSet(setName + "_active", activeConditions);
+			ed.putStringSet(setName + "_inactive", inactiveConditions);
+			ed.putStringSet("all_sets_active", activeSets);
+			ed.putStringSet("all_sets_inactive", inactiveSets);
+			ed.commit();
+    	}
     }
     static class TimerCondition extends ConditionObject {
     	int radio;
@@ -552,69 +654,60 @@ public class MainActivity extends Activity {
 	    		default: return data;
     		}
     	}    	
-    	public void activate(Context context){
-    		isActive = true;
-    		SharedPreferences prefs = context.getSharedPreferences("hay.chris.smartunlock.condition_storage", 0);
-			SharedPreferences.Editor ed = prefs.edit();
-    		Set<String> activeConditions = new HashSet<String>(
-					prefs.getStringSet(setName + "_active", new HashSet<String>()));
-			Set<String> inactiveConditions = new HashSet<String>(
-					prefs.getStringSet(setName + "_inactive", new HashSet<String>()));
-			Set<String> activeSets = new HashSet<String>(
-					prefs.getStringSet("all_sets_active", new HashSet<String>()));
-			Set<String> inactiveSets = new HashSet<String>(
-					prefs.getStringSet("all_sets_active", new HashSet<String>()));
-			Set<String> activeTimers = new HashSet<String>(
-					prefs.getStringSet("all_timers_active", new HashSet<String>()));
-			activeTimers.add(name);
-			inactiveConditions.remove(name);
-			activeConditions.add(name);
-			inactiveSets.remove(setName);
-			activeSets.add(setName);
-			ed.putString(name, toString());
-			ed.putStringSet("all_timers_active", activeTimers);
-			ed.putStringSet(setName + "_active", activeConditions);
-			ed.putStringSet(setName + "_inactive", inactiveConditions);
-			ed.putStringSet("all_sets_active", activeSets);
-			ed.putStringSet("all_sets_inactive", inactiveSets);
-			Log.e("enabling " + name, toString());
-			ed.commit(); 
-    	}
-    	public void disable(Context context){
-    		isActive = false;
-    		SharedPreferences prefs = context.getSharedPreferences("hay.chris.smartunlock.condition_storage", 0);
-			SharedPreferences.Editor ed = prefs.edit();
-    		Set<String> activeConditions = new HashSet<String>(
-					prefs.getStringSet(setName + "_active", new HashSet<String>()));
-			Set<String> inactiveConditions = new HashSet<String>(
-					prefs.getStringSet(setName + "_inactive", new HashSet<String>()));
-			Set<String> activeSets = new HashSet<String>(
-					prefs.getStringSet("all_sets_active", new HashSet<String>()));
-			Set<String> inactiveSets = new HashSet<String>(
-					prefs.getStringSet("all_sets_active", new HashSet<String>()));
-			Set<String> activeTimers = new HashSet<String>(
-					prefs.getStringSet("all_timers_active", new HashSet<String>()));
-			activeTimers.remove(name);
-			inactiveConditions.add(name);
-			activeConditions.remove(name);
-			if (activeConditions.isEmpty()) {
-				inactiveSets.add(setName);
-				activeSets.remove(setName);
-			}
-			Log.e("disabling " + name, toString());
-			ed.putString(name, toString());
-			ed.putStringSet("all_timers_active", activeTimers);
-			ed.putStringSet(setName + "_active", activeConditions);
-			ed.putStringSet(setName + "_inactive", inactiveConditions);
-			ed.putStringSet("all_sets_active", activeSets);
-			ed.putStringSet("all_sets_inactive", inactiveSets);
-			ed.commit();
-    	}
+    	
     }
     static class BluetoothCondition extends ConditionObject {
-    	public BluetoothCondition(String name, String setName) {
+    	int radio;
+    	ArrayList<String> devices;
+    	public BluetoothCondition(String name, String setName, int radio) {
     		super(1, name, setName);
+    		this.radio = radio;
+    		devices = new ArrayList<String>();
     	}
+    	public BluetoothCondition(String name, String data){
+    		super(name);
+    		if (data.equals("")) return;
+    		
+    		Log.e(name, data);
+    		String[] splitData = data.split(";");
+    		
+    		type = Integer.parseInt(splitData[0]);
+    		if (Integer.parseInt(splitData[1]) == 1) isValid = true;
+    		else isValid = false;
+    		setName = splitData[2];
+    		radio = Integer.parseInt(splitData[3]);    		
+    		int numDevices = splitData.length - 5;
+    		devices = new ArrayList<String>();
+    		for (int i = 4; i < numDevices + 4; i++){
+    			Log.e("device", splitData[i]);
+    			devices.add(splitData[i]);
+    		}
+    		isActive = Integer.parseInt(splitData[splitData.length - 1]) > 0;
+    	}
+    	public void addDevice(String name, String mac) {
+    		devices.add(name + "\n" + mac);
+    	}
+    	public void addDevice(String data){
+    		devices.add(data);
+    		Log.e("device list size", "" + devices.size());
+    	}
+    	public void removeDevice(String data){
+    		devices.remove(data);
+    	}
+    	public String toString() {
+    		String validity;
+    		String active;
+    		if (isValid()) validity = "1";
+    		else validity = "0";
+    		if (isActive) active = "1";
+    		else active = "0";
+    		StringBuilder deviceList = new StringBuilder();
+    		for (String name : devices)
+    			deviceList.append(name + ";");
+    		String data = "" + getType() + ";" + validity + ";" + getSetName() + ";" + radio + ";" + deviceList;
+    		Log.e("saving bluetooth", data + active + ";");	
+    		return data + active + ";";
+    	} 
     }
     static class WifiCondition extends ConditionObject {
     	public WifiCondition(String name, String setName) {
