@@ -53,7 +53,7 @@ public class CreateConditionActivity extends Activity implements MyDialogFragmen
 	        }
 	    }
 	};
-	
+	  
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

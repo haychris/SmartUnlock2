@@ -3,9 +3,9 @@
     package="hay.chris.smartunlock"
     android:versionCode="1"
     android:versionName="1.0" >
-   <uses-permission android:name="android.permission.BLUETOOTH" />
-   <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -33,7 +33,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="hay.chris.smartunlock.MainActivity" />
         </activity>
-        
+
         <receiver
             android:name=".DeviceAdmin"
             android:description="@string/device_admin_description"
@@ -56,8 +56,7 @@
             android:enabled="true"
             android:exported="true" >
         </receiver>
-        
-        
+
         <activity
             android:name=".CreateConditionActivity"
             android:label="@string/title_activity_create_condition"
@@ -66,6 +65,18 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="hay.chris.smartunlock.MainActivity" />
         </activity>
+
+        <receiver
+            android:name=".BluetoothReceiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                 <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
+                <action android:name="android.bluetooth.device.action.ACL_DISCONNECT_REQUESTED" />
+                <action android:name="android.bluetooth.adapter.action.DISCONNECTED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

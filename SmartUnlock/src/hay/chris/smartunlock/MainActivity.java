@@ -32,7 +32,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 
-public class MainActivity extends Activity { 
+public class MainActivity extends Activity {  
 
 	private ConditionAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
 		if (mAdapter == null) { 
 			ArrayList<ConditionSet> data = new ArrayList<ConditionSet>();
 			int nullCount = 0;
-			for (int i = 0; i < setStorageSize + nullCount; i++) {
+			for (int i = 0; i < setStorageSize + nullCount; i++) {   
 				String setName = "set" + i;
 				Set<String> activeConditions = prefs.getStringSet(setName +"_active", new HashSet<String>());
 				Set<String> inActiveConditions = prefs.getStringSet(setName +"_inactive", new HashSet<String>());
